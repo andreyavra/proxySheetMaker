@@ -21,10 +21,6 @@ def main():
     cards = get_user_cards()
     pdf = create_pdf(cards)
     send_pdf(pdf)
-    
-
-
-    return
 
 
 def get_user_cards():
@@ -52,21 +48,23 @@ def create_pdf(cards):
     while i < numTotalCards:
         cardInfo = webreq.get_api_dict(mainAPI, {"name": cards[i][CARD_NAME]})
 
-
-        print("\n\n\n\n")
         imgURL = imageAPI + cardInfo['id'] + ".jpg"
         print("Printing imgURL:", imgURL)
-        print("\n\n\n\n\n\n\n\n\n")
 
-        p = requests.get(imgURL)
-        print("JSON: ", p.json)
+        img = webreq.url_to_image(imgURL)
+
+        print("ABC")
+
+        webreq.display(img)
+
+        print("DEF")
 
         
 
         
         i+=1
 
-    return None
+    return "ABC"
 
 
 

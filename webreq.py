@@ -35,7 +35,7 @@ def url_to_image(url):
     ''' Given a url to an image and internet access, returns the image
     from the url as a OpenCV-formatted NumPy array. '''
     # Requesting the url
-    resp = urllib.urlopen(url)
+    resp = urllib.request.urlopen(url)
     # Decoding the reponse into a NumPy array
     image = np.asarray(bytearray(resp.read()), dtype="uint8")
     # Decoding the NumPy array as an OpenCV image
