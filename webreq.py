@@ -6,7 +6,7 @@ import cv2
 
 
 class Card:
-    def __init__(self, name):
+    def __init__(self, id, name, type, race, desc, img, setID, atk=None, defense=None, attribute=None, linkVal=None, linkMarkers=None):
         self.name = name
 
     pass
@@ -31,16 +31,9 @@ def get_api_dict(API, paramsForAPI):
     return d
 
 
-def url_to_image(url):
-    ''' Given a url to an image and internet access, returns the image
-    from the url as a OpenCV-formatted NumPy array. '''
-    # Requesting the url
-    resp = urllib.request.urlopen(url)
-    # Decoding the reponse into a NumPy array
-    image = np.asarray(bytearray(resp.read()), dtype="uint8")
-    # Decoding the NumPy array as an OpenCV image
-    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-    return image
+
+
+
 
 
 
