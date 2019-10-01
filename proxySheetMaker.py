@@ -29,15 +29,25 @@ from reportlab.lib.utils import ImageReader
 
 CARD_NAME = 0
 NUM_OF_CARDS = 1
+LMARGIN = 30
+TMARGIN = 30
+
+xcoords_for_getcoords = (LMARGIN, LMARGIN+58*mm, LMARGIN+2*58*mm)
+ycoords_for_getcoords = (841.8897637795277-TMARGIN-86*mm, 841.8897637795277-TMARGIN-2*86*mm, 841.8897637795277-TMARGIN-3*86*mm)
 
 
 def main():
     # print("<test>")
+    # print(A4)
+    # print(841.8897637795277-TMARGIN-86*mm, 841.8897637795277-TMARGIN-2*86*mm, 841.8897637795277-TMARGIN-3*86*mm)
+    # print(LMARGIN, LMARGIN+58*mm, LMARGIN+2*58*mm)
+    # print("</test>\n")
 
-    # print("</test>")
     cards = get_user_cards()
     pdf = create_pdf(cards)
     send_pdf(pdf)
+
+    
 
 
 def get_user_cards():
@@ -70,8 +80,7 @@ def create_pdf(cards):
     i = 0
     numTotalCards = len(cards)
     price = 0
-    # xcoords = (10,10+58*mm,10+2*58*mm)
-    # ycoords = (831,831-86*mm,831-2*86*mm)
+
     counter = 0
     while i < numTotalCards:
         cardInfo = webreq.get_api_dict(mainAPI, {"name": cards[i][CARD_NAME]})
@@ -91,8 +100,14 @@ def create_pdf(cards):
 
         j = 0
         while j<cards[i][NUM_OF_CARDS]:
-            doc.drawImage(imgURL, 10, 10, width=59*mm, height=86*mm, mask='auto')
-            doc.showPage()
+            coords = getCoords(counter)
+            print("coords:", coords)
+            doc.drawImage(imgURL, coords[0], coords[1], width=59*mm, height=86*mm, mask='auto')
+            if counter == 8:
+                doc.showPage()
+                counter = 0
+            else:
+                counter+=1
             j+=1
 
         i+=1
@@ -109,13 +124,18 @@ def send_pdf(pdf):
 
 
 
+def getCoords(counter):
+    xcoord = xcoords_for_getcoords[counter%3]
+    if counter <= 2:
+        ycoord = ycoords_for_getcoords[0]
+    elif counter <= 5:
+        ycoord = ycoords_for_getcoords[1]
+    else:
+        ycoord = ycoords_for_getcoords[2]
+    return (xcoord,ycoord)
+        
+    
 
-def getImg(url, newWidth, newHeight):
-    ''' uses mm you american scum '''
-    # iw, ih = img.getSize()
-    # aspect = ih / float(iw)
-    print(url)
-    return platypus.Image(url, width=newWidth, height=newHeight)
 
 
 
