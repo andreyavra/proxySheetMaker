@@ -12,9 +12,13 @@
 # Guide to the API that this program uses:
 # https://db.ygoprodeck.com/api-guide/
 
+# WITHOUT PIL: 31 sec
+
 import requests
 import json
 from io import BytesIO
+
+from PIL import Image
 
 from time import time
 
@@ -119,27 +123,39 @@ def create_pdf(cards, choice):
     while i < numTotalCards:
         if choice == 't':
             # Getting the json file at the API as a dictionary 
-            cardInfo = get_api_dict(mainAPI, {"name": cards[i][CARD_NAME]})
+            cardInfo = get_api_dict(mainAPI, 
+                {"name": cards[i][CARD_NAME]})
+            print("Adding card with ID:", cardInfo['id'])
             # Creating the imgURL to get the image from
             imgURL = imageAPI + cardInfo['id'] + ".jpg"
         else:
             # Creating the imgURL to get the image from
             imgURL = imageAPI + cards[i][0] + ".jpg"
         
+        # Getting the image from the URL
+        cardImg = get_img_from_url(imgURL)
+
         # Making sure to put on the PDF the amount of cards specified
         j = 0
         while j < cards[i][NUM_OF_CARDS]:
+            # Getting the future card position in the PDF as 
+            # coordinates
             coords = get_coords(counter)
-            doc.drawImage(imgURL, coords[0], coords[1], width=59*mm, height=86*mm, mask='auto')
-            print("Card added!")
-            if counter == 8:
+            # Putting the image onto the PDF
+            doc.drawImage(cardImg, coords[0], coords[1], width=59*mm, 
+                height=86*mm, mask='auto')
+            if counter == 8: # Meaning the page is full
+                # Creating new page
                 doc.showPage()
+                # Adding header onto new page on the PDF
                 doc.drawString(9,831,"Andrey Avramenko is the best!")
+                # Resetting the counter
                 counter = 0
             else:
+                # Adding that a card was drawn to the tally
                 counter+=1
             j+=1
-
+            print("Card added", cards[i][NUM_OF_CARDS], "times!")
         i+=1
     # Saving the PDF in the current directory.
     doc.save()
@@ -157,15 +173,34 @@ def get_coords(counter):
         ycoord = ycoords_for_getcoords[2]
     return (xcoord,ycoord)
         
+
+def get_img_from_url(url):
+    '''Given a url to an image as a string, returns the image'''
+    response = requests.get(url)
+    try:
+        return Image.open(BytesIO(response.content)).seek(0)
+    except:
+        raise NameError("URL does not go to an image.")
     
 
-def get_api_dict(API, paramsForAPI):
-    ''' Given a url to a .json object, returns that information as a 
-    dictionary.'''
-    response = requests.get(API, paramsForAPI)
-    dictionary = json.loads(response.text[1:-1]) 
 
-    return dictionary
+
+def get_api_dict(API, paramsForAPI):
+    ''' Given a url to a .json API as a string, like so: and the 
+    parameters to the API in a dictionary, returns that information as 
+    a dictionary in the form: {"name": "foo"}, returns the .json file 
+    at the API as a dictionary.'''
+    try:
+        response = requests.get(API, paramsForAPI)
+    except:
+        ("URL is invalid, or parameters are invalid for the URL")
+    
+    try:
+        dictionary = json.loads(response.text[1:-1]) 
+        return dictionary
+    except:
+        raise NameError("URL is not an API that goes to a .json")
+    
 
 
 if __name__ == '__main__':
