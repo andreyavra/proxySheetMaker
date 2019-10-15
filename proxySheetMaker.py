@@ -6,7 +6,7 @@
 # directory of the corresponding cards.
 
 # Libraries required:
-# requests, json, 
+# requests, json, io, reportlab
 
 
 # Guide to the API that this program uses:
