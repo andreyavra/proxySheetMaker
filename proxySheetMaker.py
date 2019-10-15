@@ -1,11 +1,19 @@
+# Proxy Sheet Maker
+# by Andrey Avramenko
+
+# Given an input of y or t, and the corresponding deck.ydk or 
+# cardList.txt in the same directory, outputs a PDF in the same 
+# directory of the corresponding cards.
+
+# Libraries required:
+# requests, json, 
+
+
 # Guide to the API that this program uses:
 # https://db.ygoprodeck.com/api-guide/
 
 import requests
 import json
-import urllib
-import cv2
-
 from io import BytesIO
 
 from reportlab.lib.enums import TA_JUSTIFY
@@ -16,7 +24,8 @@ from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 
-import reportlab.platypus as platypus # includes: SimpleDocTemplate, Paragraph, Spacer, Image
+import reportlab.platypus as platypus 
+# platypus includes: SimpleDocTemplate, Paragraph, Spacer, Image
 
 
 CARD_NAME = 0
@@ -25,12 +34,21 @@ LMARGIN = 30
 TMARGIN = 30
 
 
-xcoords_for_getcoords = (LMARGIN, LMARGIN+58*mm, LMARGIN+2*58*mm)
-ycoords_for_getcoords = (841.8897637795277-TMARGIN-86*mm, 841.8897637795277-TMARGIN-2*86*mm, 841.8897637795277-TMARGIN-3*86*mm)
+xcoords_for_getcoords = (
+    LMARGIN, 
+    LMARGIN+58*mm, 
+    LMARGIN+2*58*mm
+)
+ycoords_for_getcoords = (
+    841.8897637795277-TMARGIN-86*mm, 
+    841.8897637795277-TMARGIN-2*86*mm, 
+    841.8897637795277-TMARGIN-3*86*mm
+)
 
 
 def main():
-    choice = input().lower()[0]
+    choice = input("Please enter y for deck.ydk, or t for "
+        "cardList.txt: ").lower()[0]
     cards = get_user_cards(choice)
     create_pdf(cards, choice)
 
@@ -105,7 +123,6 @@ def create_pdf(cards, choice):
             j+=1
 
         i+=1
-
     doc.save()
     
 
@@ -132,6 +149,5 @@ def get_api_dict(API, paramsForAPI):
     return dictionary
 
 
-
-
-main()
+if __name__ == '__main__':
+    main()
