@@ -16,6 +16,8 @@ import requests
 import json
 from io import BytesIO
 
+from time import time
+
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -48,10 +50,13 @@ ycoords_for_getcoords = (
 def main():
     choice = input("Please enter y for deck.ydk, or t for "
         "cardList.txt: ").lower()[0]
+    startTimer = time()
     # Getting a list of the user's cards
     cards = get_user_cards(choice)
     # Creating a PDF
     create_pdf(cards, choice)
+    endTimer = time()
+    print("Time taken:", endTimer-startTimer)
 
 
 
@@ -121,13 +126,12 @@ def create_pdf(cards, choice):
             # Creating the imgURL to get the image from
             imgURL = imageAPI + cards[i][0] + ".jpg"
         
-        # logo = ImageReader('https://www.google.com/images/srpr/logo11w.png')
         # Making sure to put on the PDF the amount of cards specified
         j = 0
         while j < cards[i][NUM_OF_CARDS]:
             coords = get_coords(counter)
-            print("coords:", coords)
             doc.drawImage(imgURL, coords[0], coords[1], width=59*mm, height=86*mm, mask='auto')
+            print("Card added!")
             if counter == 8:
                 doc.showPage()
                 doc.drawString(9,831,"Andrey Avramenko is the best!")
