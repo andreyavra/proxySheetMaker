@@ -12,23 +12,7 @@ class Card:
     pass
 
 
-def get_api_dict(API, paramsForAPI):
-    ''' Given a url to a .json object, returns that information as a 
-    dictionary. '''
-    r = requests.get(API, paramsForAPI)
-    # print("Printing first request: ")
-    # print("URL: ", r.url)
-    # print("ENCODING: ", r.encoding)
-    # print("STATUS_CODE: ", r.status_code)
-    # print("HEADERS: ", r.headers)
-    # print("TEXT: ", r.text)
-    # print("CONTENT: ", r.content)
-    # print("JSON: ", r.json)
-    # print("\n\n\n")
 
-    d = json.loads(r.text[1:-1]) 
-
-    return d
 
 
 

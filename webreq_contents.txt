@@ -1,4 +1,0 @@
-Functions
-url_to_image(url)
-display(image)
-url_to_dict(API, paramsForAPI)

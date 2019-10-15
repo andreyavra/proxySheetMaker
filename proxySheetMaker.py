@@ -1,30 +1,22 @@
+# Guide to the API that this program uses:
+# https://db.ygoprodeck.com/api-guide/
+
 import requests
 import json
-import numpy as np
 import urllib
 import cv2
-import webreq
 
-from PIL import Image
 from io import BytesIO
 
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import letter, landscape, A4
-
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.pagesizes import letter
 import reportlab.platypus as platypus # includes: SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm, cm
-
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
-
-
-
-# https://storage.googleapis.com/ygoprodeck.com/pics/27551.jpg
-# https://db.ygoprodeck.com/api/v5/cardinfo.php?name=Decode%20Talker
-# https://db.ygoprodeck.com/api-guide/
 
 
 CARD_NAME = 0
@@ -32,41 +24,53 @@ NUM_OF_CARDS = 1
 LMARGIN = 30
 TMARGIN = 30
 
+
 xcoords_for_getcoords = (LMARGIN, LMARGIN+58*mm, LMARGIN+2*58*mm)
 ycoords_for_getcoords = (841.8897637795277-TMARGIN-86*mm, 841.8897637795277-TMARGIN-2*86*mm, 841.8897637795277-TMARGIN-3*86*mm)
 
 
 def main():
-    # print("<test>")
-    # print(A4)
-    # print(841.8897637795277-TMARGIN-86*mm, 841.8897637795277-TMARGIN-2*86*mm, 841.8897637795277-TMARGIN-3*86*mm)
-    # print(LMARGIN, LMARGIN+58*mm, LMARGIN+2*58*mm)
-    # print("</test>\n")
 
-    cards = get_user_cards()
-    pdf = create_pdf(cards)
-    send_pdf(pdf)
+    choice = input().lower()[0]
+
+    cards = get_user_cards(choice)
+    create_pdf(cards, choice)
+
+    
+    
 
     
 
 
-def get_user_cards():
+def get_user_cards(choice):
     cards = []
-    with open("cardList.txt") as f:
-        for item in f:
-            item = item.strip()
-            i = 0
-            while item[i] != ' ':
-                i+=1
-            numCards = int(item[:i])
-            cardName = item[(i+1):]
-            cards.append((cardName, numCards))
+    if choice == 't':
+        with open("cardList.txt") as f:
+            for item in f:
+                item = item.strip()
+                i = 0
+                while item[i] != ' ':
+                    i+=1
+                numCards = int(item[:i])
+                cardName = item[(i+1):]
+                cards.append((cardName, numCards))
+    else:
+        with open("deck.ydk") as f:
+            d = {}
+            for item in f:
+                item = item.strip()
+                if item[0] != '#' and item[0] != '!' and item[0] != '':
+                    d[item] = d.get(item, 0) + 1
+
+            for cardName in d:
+                cards.append((cardName, d[cardName]))
+                
     return cards
 
 
 
 
-def create_pdf(cards):
+def create_pdf(cards, choice):
     mainAPI = "https://db.ygoprodeck.com/api/v5/cardinfo.php"
     imageAPI = "https://storage.googleapis.com/ygoprodeck.com/pics/"
 
@@ -75,28 +79,21 @@ def create_pdf(cards):
     print("Printing Coordinates of an A4:", A4)
     doc.drawString(9,831,"My name's Hayato and I got 37 ATAR :(")
     # Coords start from bottom left, and each point is 1/72 inches
-    
 
     i = 0
     numTotalCards = len(cards)
-    price = 0
 
     counter = 0
     while i < numTotalCards:
-        cardInfo = webreq.get_api_dict(mainAPI, {"name": cards[i][CARD_NAME]})
+        if choice == 't':
+            cardInfo = get_api_dict(mainAPI, {"name": cards[i][CARD_NAME]})
+            imgURL = imageAPI + cardInfo['id'] + ".jpg"
+        else:
+            print(cards[i])
+            imgURL = imageAPI + cards[i][0] + ".jpg"
+            
 
-        price+=float(cardInfo['card_prices']['tcgplayer_price'])
 
-        imgURL = imageAPI + cardInfo['id'] + ".jpg"
-        print("Printing imgURL:", imgURL)
-
-        # response = requests.get(imgURL)
-        # img = Image.open(BytesIO(response.content))
-
-        # >>> img = ImageReader(imgURL)
-        # img = getImg(imgURL, 86, 58)
-
-        # >>>doc.drawImage(img, 10, 10, mask='auto')
 
         j = 0
         while j<cards[i][NUM_OF_CARDS]:
@@ -111,16 +108,12 @@ def create_pdf(cards):
             j+=1
 
         i+=1
-    print('Hey povo. Fucking buy the deck for ${price} at TCG player.'.format(price=price))
+
     doc.save()
-
-    return "ABC"
-
+    
 
 
 
-def send_pdf(pdf):
-    print("Sent!")
 
 
 
@@ -135,6 +128,14 @@ def getCoords(counter):
     return (xcoord,ycoord)
         
     
+
+def get_api_dict(API, paramsForAPI):
+    ''' Given a url to a .json object, returns that information as a 
+    dictionary.'''
+    response = requests.get(API, paramsForAPI)
+    dictionary = json.loads(response.text[1:-1]) 
+
+    return dictionary
 
 
 
