@@ -9,14 +9,14 @@ import cv2
 from io import BytesIO
 
 from reportlab.lib.enums import TA_JUSTIFY
-from reportlab.lib.pagesizes import letter, landscape, A4
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.enums import TA_JUSTIFY
-from reportlab.lib.pagesizes import letter
-import reportlab.platypus as platypus # includes: SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import mm, cm
+from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
+
+import reportlab.platypus as platypus # includes: SimpleDocTemplate, Paragraph, Spacer, Image
 
 
 CARD_NAME = 0
@@ -30,19 +30,16 @@ ycoords_for_getcoords = (841.8897637795277-TMARGIN-86*mm, 841.8897637795277-TMAR
 
 
 def main():
-
     choice = input().lower()[0]
-
     cards = get_user_cards(choice)
     create_pdf(cards, choice)
 
-    
-    
-
-    
 
 
 def get_user_cards(choice):
+    '''Given a choice for the correponding file format, ('y' for .ydk
+    and 't' for .txt), returns the cards in the corresponding file 
+    ('deck.ydk' or 'cardList.txt') that is in the current directory.'''
     cards = []
     if choice == 't':
         with open("cardList.txt") as f:
@@ -71,6 +68,9 @@ def get_user_cards(choice):
 
 
 def create_pdf(cards, choice):
+    '''Given cards in the tuple form (cardName, numCard), and the 
+    format the cards are in, indestructively returns a pdf of all
+    of the cards specified.'''
     mainAPI = "https://db.ygoprodeck.com/api/v5/cardinfo.php"
     imageAPI = "https://storage.googleapis.com/ygoprodeck.com/pics/"
 
@@ -92,9 +92,6 @@ def create_pdf(cards, choice):
             print(cards[i])
             imgURL = imageAPI + cards[i][0] + ".jpg"
             
-
-
-
         j = 0
         while j<cards[i][NUM_OF_CARDS]:
             coords = getCoords(counter)
@@ -113,11 +110,8 @@ def create_pdf(cards, choice):
     
 
 
-
-
-
-
 def getCoords(counter):
+    '''Function not to be used directly.'''
     xcoord = xcoords_for_getcoords[counter%3]
     if counter <= 2:
         ycoord = ycoords_for_getcoords[0]
@@ -141,15 +135,3 @@ def get_api_dict(API, paramsForAPI):
 
 
 main()
-
-
-# SOLUTIONS TO GET IMAGE:
-
-'''
-from PIL import Image
-import requests
-from io import BytesIO
-
-response = requests.get(url)
-img = Image.open(BytesIO(response.content))
-'''
