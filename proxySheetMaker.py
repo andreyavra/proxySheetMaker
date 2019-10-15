@@ -12,15 +12,11 @@
 # Guide to the API that this program uses:
 # https://db.ygoprodeck.com/api-guide/
 
-# WITHOUT PIL: 31 sec
-
 import requests
 import json
+
 from io import BytesIO
-
 from PIL import Image
-
-from time import time
 
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.enums import TA_JUSTIFY
@@ -30,7 +26,8 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 
 import reportlab.platypus as platypus 
-# platypus includes: SimpleDocTemplate, Paragraph, Spacer, Image
+
+from time import time
 
 
 CARD_NAME = 0
