@@ -2,7 +2,7 @@
 Welcome to the Yu-Gi-Oh! Proxy Sheet Maker! This service allows for easy creation of Yu-Gi-Oh! proxy sheets. 
 
 # Running the App
-To run the app, make sure you have the following libraries installed: requests; json; io; reportlab
+To run the app, make sure you have the following libraries installed: requests, json, io, reportlab, PIL, time
 
 Run the app through the terminal - in ./, python3 proxySheetMaker.py, then type either t or y depending on the type of decklist you want to turn into a PDF.
 
