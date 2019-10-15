@@ -17,7 +17,6 @@ import json
 from io import BytesIO
 
 from reportlab.lib.enums import TA_JUSTIFY
-from reportlab.lib.pagesizes import A4
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
@@ -49,7 +48,9 @@ ycoords_for_getcoords = (
 def main():
     choice = input("Please enter y for deck.ydk, or t for "
         "cardList.txt: ").lower()[0]
+    # Getting a list of the user's cards
     cards = get_user_cards(choice)
+    # Creating a PDF
     create_pdf(cards, choice)
 
 
@@ -60,26 +61,33 @@ def get_user_cards(choice):
     ('deck.ydk' or 'cardList.txt') that is in the current directory.'''
     cards = []
     if choice == 't':
+        # Opening the corresponding file
         with open("cardList.txt") as f:
             for item in f:
                 item = item.strip()
+                # Finding the index between the number of cards and 
+                # the card name
                 i = 0
                 while item[i] != ' ':
                     i+=1
+                # Slicing the string at the index found above
                 numCards = int(item[:i])
                 cardName = item[(i+1):]
+                # Appending this information into the total cards
                 cards.append((cardName, numCards))
     else:
+        # Opening the corresponding file
         with open("deck.ydk") as f:
+            # Doing frequency analysis for all of the cards to account
+            # for lack of frequency in a .ydk file.
             d = {}
             for item in f:
                 item = item.strip()
                 if item[0] != '#' and item[0] != '!' and item[0] != '':
                     d[item] = d.get(item, 0) + 1
-
+            # Adding this information to the cards list
             for cardName in d:
                 cards.append((cardName, d[cardName]))
-                
     return cards
 
 
@@ -89,40 +97,47 @@ def create_pdf(cards, choice):
     '''Given cards in the tuple form (cardName, numCard), and the 
     format the cards are in, indestructively returns a pdf of all
     of the cards specified.'''
+    # Defining APIs
     mainAPI = "https://db.ygoprodeck.com/api/v5/cardinfo.php"
     imageAPI = "https://storage.googleapis.com/ygoprodeck.com/pics/"
 
+    # Initialising the PDF (default A4)
     doc = canvas.Canvas("proxySheet.pdf")
+    # Adding a header to the PDF
+    doc.drawString(9,831,"Andrey Avramenko is the best!")
 
-    print("Printing Coordinates of an A4:", A4)
-    doc.drawString(9,831,"My name's Hayato and I got 37 ATAR :(")
-    # Coords start from bottom left, and each point is 1/72 inches
-
-    i = 0
     numTotalCards = len(cards)
-
+    # Establishing counter for the number of cards on a PDF - max. is 9
     counter = 0
+    i = 0
+    # Looping through the cards to put them onto the PDF
     while i < numTotalCards:
         if choice == 't':
+            # Getting the json file at the API as a dictionary 
             cardInfo = get_api_dict(mainAPI, {"name": cards[i][CARD_NAME]})
+            # Creating the imgURL to get the image from
             imgURL = imageAPI + cardInfo['id'] + ".jpg"
         else:
-            print(cards[i])
+            # Creating the imgURL to get the image from
             imgURL = imageAPI + cards[i][0] + ".jpg"
-            
+        
+        # logo = ImageReader('https://www.google.com/images/srpr/logo11w.png')
+        # Making sure to put on the PDF the amount of cards specified
         j = 0
-        while j<cards[i][NUM_OF_CARDS]:
+        while j < cards[i][NUM_OF_CARDS]:
             coords = get_coords(counter)
             print("coords:", coords)
             doc.drawImage(imgURL, coords[0], coords[1], width=59*mm, height=86*mm, mask='auto')
             if counter == 8:
                 doc.showPage()
+                doc.drawString(9,831,"Andrey Avramenko is the best!")
                 counter = 0
             else:
                 counter+=1
             j+=1
 
         i+=1
+    # Saving the PDF in the current directory.
     doc.save()
     
 
