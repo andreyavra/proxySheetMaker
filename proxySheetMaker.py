@@ -94,7 +94,7 @@ def create_pdf(cards, choice):
             
         j = 0
         while j<cards[i][NUM_OF_CARDS]:
-            coords = getCoords(counter)
+            coords = get_coords(counter)
             print("coords:", coords)
             doc.drawImage(imgURL, coords[0], coords[1], width=59*mm, height=86*mm, mask='auto')
             if counter == 8:
@@ -110,7 +110,7 @@ def create_pdf(cards, choice):
     
 
 
-def getCoords(counter):
+def get_coords(counter):
     '''Function not to be used directly.'''
     xcoord = xcoords_for_getcoords[counter%3]
     if counter <= 2:
