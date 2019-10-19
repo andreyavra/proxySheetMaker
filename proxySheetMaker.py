@@ -18,6 +18,7 @@ import json
 from io import BytesIO
 from PIL import Image
 
+
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -132,6 +133,9 @@ def create_pdf(cards, choice):
         # Getting the image from the URL
         cardImg = get_img_from_url(imgURL)
 
+        print(imgURL)
+        
+
         # Making sure to put on the PDF the amount of cards specified
         j = 0
         while j < cards[i][NUM_OF_CARDS]:
@@ -152,7 +156,7 @@ def create_pdf(cards, choice):
                 # Adding that a card was drawn to the tally
                 counter+=1
             j+=1
-            print("Card added", cards[i][NUM_OF_CARDS], "times!")
+        print("Card added", cards[i][NUM_OF_CARDS], "times!")
         i+=1
     # Saving the PDF in the current directory.
     doc.save()
@@ -172,12 +176,12 @@ def get_coords(counter):
         
 
 def get_img_from_url(url):
-    '''Given a url to an image as a string, returns the image'''
+    '''Given a url to an image as a string, returns the image as a 
+    reportlab image object.'''
     response = requests.get(url)
-    try:
-        return Image.open(BytesIO(response.content)).seek(0)
-    except:
-        raise NameError("URL does not go to an image.")
+    img = Image.open(BytesIO(response.content))
+    return ImageReader(img)
+
     
 
 
