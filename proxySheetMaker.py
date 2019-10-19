@@ -130,8 +130,6 @@ def create_pdf(cards, choice):
             # Creating the imgURL to get the image from
             imgURL = imageAPI + cards[i][0] + ".jpg"
         
-        # Getting the image from the URL
-        cardImg = get_img_from_url(imgURL)
 
         print(imgURL)
         
@@ -143,7 +141,7 @@ def create_pdf(cards, choice):
             # coordinates
             coords = get_coords(counter)
             # Putting the image onto the PDF
-            doc.drawImage(cardImg, coords[0], coords[1], width=59*mm, 
+            doc.drawImage(imgURL, coords[0], coords[1], width=59*mm, 
                 height=86*mm, mask='auto')
             if counter == 8: # Meaning the page is full
                 # Creating new page
@@ -173,14 +171,6 @@ def get_coords(counter):
     else:
         ycoord = ycoords_for_getcoords[2]
     return (xcoord,ycoord)
-        
-
-def get_img_from_url(url):
-    '''Given a url to an image as a string, returns the image as a 
-    reportlab image object.'''
-    response = requests.get(url)
-    img = Image.open(BytesIO(response.content))
-    return ImageReader(img)
 
     
 
